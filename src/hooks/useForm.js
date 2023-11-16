@@ -1,15 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const useForm = (initialFormData) => {
   const formData = useRef(initialFormData);
-  const error = useRef({});
-
-  useEffect(() => {
-    Object.keys(formData.current).forEach((key) => {
-      error.current[key] = '';
-    });
-    console.log(error.current);
-  }, []);
+  const [error, setError] = useState(initialFormData);
 
   const register = (key, validators = []) => {
     const onChange = (e) => {
@@ -18,15 +11,12 @@ const useForm = (initialFormData) => {
           validator(e.target.value);
         });
         formData.current[key] = e.target.value;
-        error.current[key] = '';
-      } catch (e) {
-        error.current[key] = e.message;
-      }
+      } catch (e) {}
     };
     return { onChange };
   };
 
-  return { formData: formData.current, error: error.current, register };
+  return { formData: formData.current, error: '', register };
 };
 
 export default useForm;
