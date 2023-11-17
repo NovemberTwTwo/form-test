@@ -22,7 +22,7 @@ const debouncer = (callback, delay) => {
   let timer;
   return () => {
     if (timer) clearTimeout(timer);
-    setTimeout(callback, delay);
+    timer = setTimeout(callback, delay);
   };
 };
 
