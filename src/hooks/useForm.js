@@ -18,11 +18,11 @@ const formDataValidator = (error) => {
   });
 };
 
-const debouncer = (callback, delay) => {
+const debouncer = (callback, delay, arg) => {
   let timer;
-  return () => {
+  return (arg) => {
     if (timer) clearTimeout(timer);
-    timer = setTimeout(callback, delay);
+    timer = setTimeout(callback, delay, arg);
   };
 };
 
@@ -49,11 +49,13 @@ const useForm = (initialFormData, submitCallback) => {
       }
     };
 
-    const validateDebounce = debouncer(validateData, 300);
+    const validateDebounce = debouncer((e) => {
+      formData.current[key] = e.target.value;
+      validateData();
+    }, 300);
 
     const onChange = (e) => {
-      validateDebounce();
-      formData.current[key] = e.target.value;
+      validateDebounce(e);
     };
 
     return { onChange, onBlur: validateData };
