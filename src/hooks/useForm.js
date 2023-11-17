@@ -18,15 +18,19 @@ const formDataValidator = (error) => {
   });
 };
 
+const debouncer = (callback, delay) => {
+  let timer;
+  return () => {
+    if (timer) clearTimeout(timer);
+    setTimeout(callback, delay);
+  };
+};
+
 const useForm = (initialFormData, submitCallback) => {
   const formData = useRef(initialFormData);
   const [error, setError] = useState(errorObjectGenerator(initialFormData));
 
   const register = (key, validators = []) => {
-    const onChange = (e) => {
-      formData.current[key] = e.target.value;
-    };
-
     const validateData = () => {
       try {
         validators.forEach((validator) => {
@@ -43,6 +47,13 @@ const useForm = (initialFormData, submitCallback) => {
           };
         });
       }
+    };
+
+    const validateDebounce = debouncer(validateData, 300);
+
+    const onChange = (e) => {
+      validateDebounce();
+      formData.current[key] = e.target.value;
     };
 
     return { onChange, onBlur: validateData };
