@@ -1,22 +1,72 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
-const useForm = (initialFormData) => {
+const errorObjectGenerator = (initialFormData) => {
+  const error = {};
+  Object.keys(initialFormData).forEach((key) => {
+    error[key] = {
+      isValid: false,
+      errorMessage: '',
+    };
+  });
+
+  return error;
+};
+
+const formDataValidator = (error) => {
+  Object.keys(error).forEach((key) => {
+    if (!error[key].isValid) throw new Error(`${key}`);
+  });
+};
+
+const useForm = (initialFormData, submitCallback) => {
   const formData = useRef(initialFormData);
-  const [error, setError] = useState(initialFormData);
+  const [error, setError] = useState(errorObjectGenerator(initialFormData));
 
   const register = (key, validators = []) => {
     const onChange = (e) => {
+      formData.current[key] = e.target.value;
+    };
+
+    const validateData = () => {
       try {
         validators.forEach((validator) => {
-          validator(e.target.value);
+          validator(formData.current[key]);
         });
-        formData.current[key] = e.target.value;
-      } catch (e) {}
+        setError((prev) => {
+          return { ...prev, [key]: { isValid: true, errorMessage: '' } };
+        });
+      } catch (e) {
+        setError((prev) => {
+          return {
+            ...prev,
+            [key]: { isValid: false, errorMessage: e.message },
+          };
+        });
+      }
     };
-    return { onChange };
+
+    return { onChange, onBlur: validateData };
   };
 
-  return { formData: formData.current, error: '', register };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    try {
+      formDataValidator(error);
+      submitCallback(formData.current);
+    } catch (e) {
+      setError((prev) => {
+        return {
+          ...prev,
+          [e.message]: {
+            isValid: false,
+            errorMessage: `${e.message} data is not valid.`,
+          },
+        };
+      });
+    }
+  };
+
+  return { handleSubmit, error, register };
 };
 
 export default useForm;
