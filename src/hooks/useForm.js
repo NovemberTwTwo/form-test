@@ -36,16 +36,18 @@ const useForm = (initialFormData, submitCallback) => {
         validators.forEach((validator) => {
           validator(formData.current[key]);
         });
-        setError((prev) => {
-          return { ...prev, [key]: { isValid: true, errorMessage: '' } };
-        });
+        if (error[key].isValid !== true)
+          setError((prev) => {
+            return { ...prev, [key]: { isValid: true, errorMessage: '' } };
+          });
       } catch (e) {
-        setError((prev) => {
-          return {
-            ...prev,
-            [key]: { isValid: false, errorMessage: e.message },
-          };
-        });
+        if (formData.current[key].errorMessage !== e.message)
+          setError((prev) => {
+            return {
+              ...prev,
+              [key]: { isValid: false, errorMessage: e.message },
+            };
+          });
       }
     };
 
