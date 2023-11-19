@@ -4,7 +4,7 @@ const errorObjectGenerator = (initialFormData) => {
   const error = {};
   Object.keys(initialFormData).forEach((key) => {
     error[key] = {
-      isValid: false,
+      isValid: initialFormData[key] == null ? false : true,
       errorMessage: '',
     };
   });

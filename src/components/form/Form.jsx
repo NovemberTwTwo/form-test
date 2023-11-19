@@ -1,7 +1,7 @@
 import useForm from '../../hooks/useForm';
 const Form = () => {
   const { handleSubmit, error, register } = useForm(
-    { textData: '', radioData: 'A' },
+    { textData: null, radioData: 'A' },
     () => console.log('Success'),
   );
 
